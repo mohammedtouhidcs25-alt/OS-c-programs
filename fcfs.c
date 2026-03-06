@@ -1,34 +1,38 @@
 #include <stdio.h>
 
 int main()
-// Add this before calculating CT
-for(i = 0; i < n - 1; i++) {
-    for(int j = 0; j < n - i - 1; j++) {
-        if(at[j] > at[j+1]) {
-            // Swap AT
-            int temp = at[j]; at[j] = at[j+1]; at[j+1] = temp;
-            // Swap BT
-            temp = bt[j]; bt[j] = bt[j+1]; bt[j+1] = temp;
-            // You'd also need a 'pid' array to keep track of process numbers
-        }
-    }
-}
-
 {
-    int n, i;
+    int n, i, j;
 
     printf("Enter number of processes: ");
     scanf("%d", &n);
 
-    int at[n], bt[n], ct[n], tat[n], wt[n], rt[n];
+    int at[n], bt[n], ct[n], tat[n], wt[n], rt[n], p[n];
 
     for(i = 0; i < n; i++)
     {
+        p[i] = i + 1;
         printf("Enter Arrival Time and Burst Time for Process %d: ", i+1);
         scanf("%d %d", &at[i], &bt[i]);
     }
 
-    // First process
+    // Sort by Arrival Time
+    for(i = 0; i < n-1; i++)
+    {
+        for(j = i+1; j < n; j++)
+        {
+            if(at[i] > at[j])
+            {
+                int temp;
+
+                temp = at[i]; at[i] = at[j]; at[j] = temp;
+                temp = bt[i]; bt[i] = bt[j]; bt[j] = temp;
+                temp = p[i];  p[i] = p[j];  p[j] = temp;
+            }
+        }
+    }
+
+    // Completion Time
     ct[0] = at[0] + bt[0];
 
     for(i = 1; i < n; i++)
@@ -39,11 +43,12 @@ for(i = 0; i < n - 1; i++) {
             ct[i] = ct[i-1] + bt[i];
     }
 
+    // Calculate TAT, WT, RT
     for(i = 0; i < n; i++)
     {
         tat[i] = ct[i] - at[i];
         wt[i] = tat[i] - bt[i];
-        rt[i] = wt[i];   // In FCFS RT = WT
+        rt[i] = wt[i];
     }
 
     printf("\nProcess\tAT\tBT\tCT\tTAT\tWT\tRT\n");
@@ -51,8 +56,27 @@ for(i = 0; i < n - 1; i++) {
     for(i = 0; i < n; i++)
     {
         printf("P%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
-               i+1, at[i], bt[i], ct[i], tat[i], wt[i], rt[i]);
+               p[i], at[i], bt[i], ct[i], tat[i], wt[i], rt[i]);
     }
+
+    // Gantt Chart
+    printf("\nGantt Chart:\n\n");
+
+    printf("|");
+    for(i = 0; i < n; i++)
+    {
+        printf("  P%d  |", p[i]);
+    }
+
+    printf("\n");
+
+    printf("0");
+    for(i = 0; i < n; i++)
+    {
+        printf("     %d", ct[i]);
+    }
+
+    printf("\n");
 
     return 0;
 }
